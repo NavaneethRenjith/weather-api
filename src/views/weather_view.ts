@@ -20,7 +20,7 @@ export async function getWeatherData(req: Request, res: Response): Promise<void>
                 throw new CustomError(404, "No data for given city")
             }
             data = weatherResult.data
-            res.status(200).json(data)
+            res.status(200).json({data : data})
         }
         else if (!isNullOrEmpty(lat) && !isNullOrEmpty(long)) {
             const weatherResult = await fetchCurrentWeatherByCoordinates(lat, long)
@@ -28,7 +28,7 @@ export async function getWeatherData(req: Request, res: Response): Promise<void>
                 throw new CustomError(404, "No data for given coordinates")
             }
             data = weatherResult.data
-            res.status(200).json(data)
+            res.status(200).json({data: data})
         }
         else {
             res.status(400).json({

@@ -4,7 +4,6 @@ import { LoginData } from "../interfaces/login_interface"
 import { CustomError } from "../helpers/error_helper"
 import { hashPassword, verifyPassword, generateToken } from "../helpers/auth_helper"
 
-
 async function loginUser(userName: string, password: string): Promise<LoginData | null> {
     try {
         // Check if user exists

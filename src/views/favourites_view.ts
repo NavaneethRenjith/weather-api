@@ -1,22 +1,20 @@
 import { Request, Response } from "express";
 
 import { fetchFavourites, addToFavourites, removeFromFavourites } from "../controllers/favourites_controller";
-import { CustomError } from "../helpers/error_helper";
-import { validateAuthorization } from "../middleware/auth_middleware";
+import { CustomError } from "../helpers/error_helper"; 
 import { validateWeatherData } from "../helpers/weather_helper";
 
 async function getFavourites(req: Request, res: Response): Promise<void> {
     try {
-        const token = req.headers.authorization
-        if (!token) {
-            res.status(401).json({ message: "Unauthorized" })
-            return
+        const userId = req.userId
+        
+        if (!userId) {
+           res.status(401).json({ message: "Unauthorized" }) 
+           return
         }
 
-        const userId = await validateAuthorization(token)
         const favourites = await fetchFavourites(userId)
-
-        res.status(200).json(favourites)
+        res.status(200).json({data: favourites})
 
     } catch (error) {
         if (error instanceof CustomError) {
@@ -32,13 +30,11 @@ async function getFavourites(req: Request, res: Response): Promise<void> {
 
 async function saveToFavourites(req: Request, res: Response): Promise<void> {
     try {
-        const token = req.headers.authorization
-        if (!token) {
-            res.status(401).json({ message: "Unauthorized" })
-            return
+        const userId = req.userId
+        if (!userId) {
+           res.status(401).json({ message: "Unauthorized" }) 
+           return
         }
-
-        const userId = await validateAuthorization(token)
 
         const weather = req.body
         if (weather == null) {
@@ -51,9 +47,9 @@ async function saveToFavourites(req: Request, res: Response): Promise<void> {
             return
         }
 
-        const favourite = await addToFavourites(weather, userId)
-        if (favourite != null) {
-            res.status(200).json({ "message": "Saved to favourites" })
+        const favouriteId = await addToFavourites(weather, userId)
+        if (favouriteId != null) {
+            res.status(200).json({ message: "Saved to favourites", data: { ...weather, id: favouriteId }})
         }
 
     } catch (error) {
@@ -70,14 +66,6 @@ async function saveToFavourites(req: Request, res: Response): Promise<void> {
 
 async function removeFavourite(req: Request, res: Response) {
     try {
-        const token = req.headers.authorization
-        if (!token) {
-            res.status(401).json({ message: "Unauthorized" })
-            return
-        }
-
-        await validateAuthorization(token)
-
         const id = Number(req.params.id)
 
         const result = await removeFromFavourites(id)

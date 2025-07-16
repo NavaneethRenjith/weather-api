@@ -1,27 +1,29 @@
 import { getSessionId } from "../repos/session_repo"
 import { verifyToken } from "../helpers/auth_helper"
-import { CustomError } from "../helpers/error_helper"
+import { Request, Response, NextFunction } from "express"
 
 // If authorized then returns user id
-export async function validateAuthorization(token: string): Promise<number> {
+export async function validateAuthorization(req: Request, res: Response, next: NextFunction) {
     try {
-        if (!token.startsWith("Bearer ")) {
-            throw new CustomError(401, "Unauthorized")
+        const token = req.cookies.token || req.headers.authorization?.split(" ")[1]
+
+        if (!token) {
+            return res.status(401).json({ message: "Unauthorized" })    
         }
 
-        const jwtToken = token.split(" ")[1]
-        const payload = verifyToken(jwtToken)
+        const payload = verifyToken(token) as { userId: number }
+        req.userId = payload.userId
+        req.token = token
 
-        const session = await getSessionId(jwtToken)
+        const session = await getSessionId(token)
         if (session.data == null) {
-            throw new CustomError(401, "Unauthorized")
+            return res.status(401).json({ message: "Unauthorized" })
         }
-
-        return payload.userId
-    } catch (error) {
-        if (error instanceof CustomError) {
-            throw error;
+        next()
+    } catch (error: any) {
+        if (error.name === "TokenExpiredError" || error.name === "JsonWebTokenError") {
+            return res.status(401).json({ message: "Invalid or expired token" })
         }
-        throw new CustomError(401, "Unauthorized")
+        res.status(500).json({ message: "Internal Server Error" })
     }
 }
