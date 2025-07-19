@@ -1,5 +1,5 @@
 import axios from "axios"
-import { OWM_API_URLS } from "../constants/urls"
+import { OWM_API_URLS, WEATHER_IMAGE_CONSTANTS } from "../constants/urls"
 
 import { WeatherData, WeatherResult } from "../interfaces/weather_interface"
 import { CoordinatesData } from "../interfaces/location_interface"
@@ -42,12 +42,14 @@ export async function fetchCurrentWeatherByCoordinates(lat: string, lon: string)
             params: { lat: lat, lon: lon, appid: process.env.OWM_API_KEY }
         })
 
+        const iconCode: string = response.data.weather[0].icon 
         const data: WeatherData = {
-            minTemp: convertKelvinToCelcius(response.data.main.temp_min),
-            maxTemp: convertKelvinToCelcius(response.data.main.temp_max),
+            temp: convertKelvinToCelcius(response.data.main.temp),
             lat: Number(lat),
             lon: Number(lon),
-            humidity: response.data.main.humidity
+            humidity: response.data.main.humidity,
+            description: response.data.weather[0].description,
+            image: `${WEATHER_IMAGE_CONSTANTS.WEATHER_ICON_URLS}${iconCode}${WEATHER_IMAGE_CONSTANTS.ICON_SIZE}`
         }
 
         return {

@@ -26,7 +26,7 @@ async function addToFavourites(data: WeatherData, userId: number): Promise<numbe
         // Validate vavourites data
         const favouritesData: FavouriteData = {
             ...data,
-            userId: userId
+            userId: userId  
         }
 
         const result = await insertIntoFavourites(favouritesData)
@@ -48,7 +48,7 @@ async function removeFromFavourites(id: number): Promise<boolean> {
     try {
         return await deleteFromFavourites(id)
     } catch (error) {
-        console.log(error)
+        console.log(error)  
         if (error instanceof CustomError) {
             throw error
         }

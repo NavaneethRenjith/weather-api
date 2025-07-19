@@ -30,13 +30,14 @@ export function connectDB() {
                 CREATE TABLE IF NOT EXISTS favourites (
                   id INTEGER PRIMARY KEY,
                   userId INTEGER NOT NULL,
-                  minTemp TEXT,
-                  maxTemp TEXT,
+                  temp TEXT NOT NULL,
                   humidity INTEGER,
                   description TEXT,
-                  lat INTEGER,
-                  lon INTEGER,
+                  image TEXT,
+                  lat INTEGER NOT NULL,
+                  lon INTEGER NOT NULL,
                   city TEXT,
+                  createdAt TEXT,
                   FOREIGN KEY (userId) REFERENCES users(id)
                 );
             `);

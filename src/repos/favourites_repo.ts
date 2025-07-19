@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 
 import { getDb } from "./db";
 import { favourites } from "../models/favourite";
@@ -12,6 +12,7 @@ async function fetchFavouritesForUser(userId: number): Promise<FavouritesResult>
     const favouritesResult = await db.select()
         .from(favourites)
         .where(eq(favourites.userId, userId))
+        .orderBy(desc(favourites.createdAt))
 
     return {
         data: favouritesResult,

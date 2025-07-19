@@ -15,8 +15,6 @@ async function loginUser(userName: string, password: string): Promise<LoginData 
         const passwordMatch = await verifyPassword(password, user.password)
         if (!passwordMatch) throw new CustomError(401, "Wrong username or password")
 
-        // What if alreay logged in?
-
         // Create JWT token
         const tokenPayload = { userId: user.id }
         const token = generateToken(tokenPayload)
