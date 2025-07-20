@@ -2,6 +2,7 @@ import { WeatherData } from "./weather_interface"
 import { RepoResult } from "./repo_interface"
 
 export interface FavouriteData extends WeatherData {
+    id?: number
     userId: number
 }
 

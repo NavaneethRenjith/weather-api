@@ -3,16 +3,17 @@ import { OWM_API_URLS, WEATHER_IMAGE_CONSTANTS } from "../constants/urls"
 
 import { WeatherData, WeatherResult } from "../interfaces/weather_interface"
 import { CoordinatesData } from "../interfaces/location_interface"
+import { FavouriteData } from "../interfaces/favourite_interface"
 
 import { CustomError } from "../helpers/error_helper"
 import { convertKelvinToCelcius } from "../helpers/temperature_helper"
 
 // Function to get weather data for a city
-export async function fetchCurrentWeatherByCity(city: string): Promise<WeatherResult> {
+async function fetchCurrentWeatherByCity(city: string): Promise<WeatherResult> {
     try {
         const coordinates = await getCoordinatesForCity(city)
-        const lat = coordinates.lat
-        const lon = coordinates.lon
+        const lat = Number(coordinates.lat)
+        const lon = Number(coordinates.lon)
 
         const weatherResult = await fetchCurrentWeatherByCoordinates(lat, lon)
         let weatherData = weatherResult.data
@@ -35,7 +36,7 @@ export async function fetchCurrentWeatherByCity(city: string): Promise<WeatherRe
 }
 
 // Function to call Current weather API to get weather data for coordinates
-export async function fetchCurrentWeatherByCoordinates(lat: string, lon: string): Promise<WeatherResult> {
+async function fetchCurrentWeatherByCoordinates(lat: number, lon: number): Promise<WeatherResult> {
     try {
         const baseUrl = OWM_API_URLS.CURRENT_WEATHER_API_URL
         const response = await axios.get(baseUrl, {
@@ -95,3 +96,23 @@ async function getCoordinatesForCity(city: String): Promise<CoordinatesData> {
         throw new CustomError(500, "Internal Server Error")
     }
 }
+
+// Function to call Current weather API to get updated weather data for favourites
+async function getUpdatedWeatherForFavourites(favourites: FavouriteData[]): Promise<WeatherResult[]> {
+    try {
+        const weatherPromises = favourites.map((item) => {
+            return fetchCurrentWeatherByCoordinates(item.lat, item.lon)
+        })
+
+        // For parallel fetch
+        const weatherData = await Promise.all(weatherPromises)
+        return weatherData
+    } catch (error) {
+        if (error instanceof CustomError) {
+            throw error
+        }
+        throw new CustomError(500, "Internal Server Error")
+    }
+}
+
+export { fetchCurrentWeatherByCity, fetchCurrentWeatherByCoordinates, getUpdatedWeatherForFavourites}

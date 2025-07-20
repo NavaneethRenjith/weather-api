@@ -1,8 +1,10 @@
 import { Request, Response } from "express";
 
-import { fetchFavourites, addToFavourites, removeFromFavourites } from "../controllers/favourites_controller";
+import { fetchFavourites, addToFavourites, removeFromFavourites, updateFavourites } from "../controllers/favourites_controller";
 import { CustomError } from "../helpers/error_helper"; 
 import { validateWeatherData } from "../helpers/weather_helper";
+import { getUpdatedWeatherForFavourites } from "../controllers/weather_controller"
+import { FavouriteData } from "../interfaces/favourite_interface";
 
 async function getFavourites(req: Request, res: Response): Promise<void> {
     try {
@@ -14,8 +16,30 @@ async function getFavourites(req: Request, res: Response): Promise<void> {
         }
 
         const favourites = await fetchFavourites(userId)
-        res.status(200).json({data: favourites})
 
+        // Get latest weather data for favourites
+        const updatedWeatherResult = await getUpdatedWeatherForFavourites(favourites)
+        
+        const updatedFavourites: FavouriteData[] = favourites.map((fav, index) => {
+            const weatherData = updatedWeatherResult[index].data
+            if(!weatherData) {
+                // If weather failed, return original
+                return fav
+            }
+            
+            return {
+                ...fav,
+                temp: weatherData.temp,
+                humidity: weatherData.humidity,
+                description: weatherData.description,
+                image: weatherData.image
+            }
+        })
+        
+        res.status(200).json({data: updatedFavourites})
+
+        // Update favourites table
+        updateFavourites(favourites, updatedFavourites)
     } catch (error) {
         if (error instanceof CustomError) {
             res.status(error.statusCode).json({

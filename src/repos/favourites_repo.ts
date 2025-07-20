@@ -51,4 +51,23 @@ async function deleteFromFavourites(id: number): Promise<boolean> {
     return true
 }
 
-export { fetchFavouritesForUser, insertIntoFavourites, deleteFromFavourites }
+async function updateInFavourites(data: FavouriteData): Promise<boolean> {
+    const db = getDb()
+
+    if (!data.id) {
+        throw new CustomError(500, "Internal server error", "id missing for favourite")
+    }
+
+    const result = await db.update(favourites)
+        .set(data)
+        .where(eq(favourites.id, data.id))
+        .returning()
+
+    if (!result || result.length === 0) {
+        throw new CustomError(500, "Internal server error", "Error updating favourites table")
+    }
+
+    return true
+}
+
+export { fetchFavouritesForUser, insertIntoFavourites, deleteFromFavourites, updateInFavourites }
