@@ -13,7 +13,7 @@ app.use(cookieParser()) // To parse cookies from request headers
 
 // Replace with actual domain 
 app.use(cors({
-    origin: "http://localhost:5173", // Replace with actual frontend origin
+    origin: "https://localhost:5173", // Replace with actual frontend origin
     credentials: true       // To allow cookies
 }))
 

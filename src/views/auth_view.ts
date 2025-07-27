@@ -29,7 +29,7 @@ export async function login(req: Request, res: Response): Promise<void> {
 
         res.cookie("token", loginData.token, {
             httpOnly: true,
-            secure: false,
+            secure: true,
             sameSite: "strict",
             maxAge: 24 * 60 * 60 * 1000,
         });
