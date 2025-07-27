@@ -13,7 +13,7 @@ app.use(cookieParser()) // To parse cookies from request headers
 
 // Replace with actual domain 
 app.use(cors({
-    origin: "https://weather-app-one-psi-89.vercel.app/", 
+    origin: "https://weather-app-one-psi-89.vercel.app", 
     credentials: true       // To allow cookies
 }))
 
